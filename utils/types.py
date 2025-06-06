@@ -27,3 +27,14 @@ class CreateVideo(BaseModel):
     frame1_image: str | None = None
     frame0_id: str | None = None
     frame1_id: str | None = None
+
+class UpscaleRequest(BaseModel):
+    prompt: str
+
+
+class ExtendRequest(BaseModel):
+    prompt: str
+
+class ReframeRequest(BaseModel):
+    prompt: str
+    aspect_ratio: str

@@ -1,14 +1,29 @@
-import asyncio
 import ssl
-from mcp.server.fastmcp import FastMCP
-import aiohttp
 import traceback
 from io import StringIO
 
+import aiohttp
+from mcp.server.fastmcp import FastMCP
 
+from utils.api import (
+    delete_generation,
+    extend_generation,
+    get_concepts,
+    get_credits,
+    list_generations,
+    ping,
+    reframe_generation,
+    upscale_generation,
+)
 from utils.file import create_mcp_image_set, create_mcp_video_set
-from utils.types import CreateImage, CreateVideo, ImageRef
-
+from utils.types import (
+    CreateImage,
+    CreateVideo,
+    ExtendRequest,
+    ImageRef,
+    ReframeRequest,
+    UpscaleRequest,
+)
 
 mcp = FastMCP("Luma MCP")
 count = 1
@@ -154,3 +169,130 @@ async def create_video(
         traceback.print_exc(file=str_io)
         stack_trace_str = str_io.getvalue()
         return f"error in create_video: {str(e)}\n\nStack trace:\n{stack_trace_str}"
+
+@mcp.router.get("/dream-machine/v1/generations")
+async def list_generations_route(offset: int | None = 0, limit: int | None = 10):
+    """Lists generations from the Luma AI API."""
+    try:
+        ssl_context = ssl._create_unverified_context()
+        connector = aiohttp.TCPConnector(ssl=ssl_context)
+        async with aiohttp.ClientSession(connector=connector) as session:
+            return await list_generations(session=session, offset=offset, limit=limit)
+    except Exception as e:
+        str_io = StringIO()
+        traceback.print_exc(file=str_io)
+        stack_trace_str = str_io.getvalue()
+        return f"error in list_generations: {str(e)}\n\nStack trace:\n{stack_trace_str}"
+
+
+@mcp.router.delete("/dream-machine/v1/generations/{id}")
+async def delete_generation_route(id: str):
+    """Deletes a generation from the Luma AI API."""
+    try:
+        ssl_context = ssl._create_unverified_context()
+        connector = aiohttp.TCPConnector(ssl=ssl_context)
+        async with aiohttp.ClientSession(connector=connector) as session:
+            return await delete_generation(id=id, session=session)
+    except Exception as e:
+        str_io = StringIO()
+        traceback.print_exc(file=str_io)
+        stack_trace_str = str_io.getvalue()
+        return (
+            f"error in delete_generation: {str(e)}\n\nStack trace:\n{stack_trace_str}"
+        )
+
+
+@mcp.router.get("/dream-machine/v1/ping")
+async def ping_luma():
+    """Pings the Luma AI API."""
+    try:
+        ssl_context = ssl._create_unverified_context()
+        connector = aiohttp.TCPConnector(ssl=ssl_context)
+        async with aiohttp.ClientSession(connector=connector) as session:
+            return await ping(session=session)
+    except Exception as e:
+        str_io = StringIO()
+        traceback.print_exc(file=str_io)
+        stack_trace_str = str_io.getvalue()
+        return f"error in ping: {str(e)}\n\nStack trace:\n{stack_trace_str}"
+
+
+@mcp.router.get("/dream-machine/v1/credits")
+async def get_credits_route():
+    """Gets the remaining credits from the Luma AI API."""
+    try:
+        ssl_context = ssl._create_unverified_context()
+        connector = aiohttp.TCPConnector(ssl=ssl_context)
+        async with aiohttp.ClientSession(connector=connector) as session:
+            return await get_credits(session=session)
+    except Exception as e:
+        str_io = StringIO()
+        traceback.print_exc(file=str_io)
+        stack_trace_str = str_io.getvalue()
+        return f"error in get_credits: {str(e)}\n\nStack trace:\n{stack_trace_str}"
+
+
+@mcp.router.get("/dream-machine/v1/concepts")
+async def get_concepts_route(offset: int | None = 0, limit: int | None = 10):
+    """Gets concepts from the Luma AI API."""
+    try:
+        ssl_context = ssl._create_unverified_context()
+        connector = aiohttp.TCPConnector(ssl=ssl_context)
+        async with aiohttp.ClientSession(connector=connector) as session:
+            return await get_concepts(session=session, offset=offset, limit=limit)
+    except Exception as e:
+        str_io = StringIO()
+        traceback.print_exc(file=str_io)
+        stack_trace_str = str_io.getvalue()
+        return f"error in get_concepts: {str(e)}\n\nStack trace:\n{stack_trace_str}"
+
+
+@mcp.router.post("/dream-machine/v1/generations/{id}/upscale")
+async def upscale_generation_route(id: str, payload: UpscaleRequest):
+    """Upscales a generation from the Luma AI API."""
+    try:
+        ssl_context = ssl._create_unverified_context()
+        connector = aiohttp.TCPConnector(ssl=ssl_context)
+        async with aiohttp.ClientSession(connector=connector) as session:
+            return await upscale_generation(id=id, payload=payload, session=session)
+    except Exception as e:
+        str_io = StringIO()
+        traceback.print_exc(file=str_io)
+        stack_trace_str = str_io.getvalue()
+        return (
+            f"error in upscale_generation: {str(e)}\n\nStack trace:\n{stack_trace_str}"
+        )
+
+
+@mcp.router.post("/dream-machine/v1/generations/{id}/extend")
+async def extend_generation_route(id: str, payload: ExtendRequest):
+    """Extends a generation from the Luma AI API."""
+    try:
+        ssl_context = ssl._create_unverified_context()
+        connector = aiohttp.TCPConnector(ssl=ssl_context)
+        async with aiohttp.ClientSession(connector=connector) as session:
+            return await extend_generation(id=id, payload=payload, session=session)
+    except Exception as e:
+        str_io = StringIO()
+        traceback.print_exc(file=str_io)
+        stack_trace_str = str_io.getvalue()
+        return (
+            f"error in extend_generation: {str(e)}\n\nStack trace:\n{stack_trace_str}"
+        )
+
+
+@mcp.router.post("/dream-machine/v1/generations/{id}/reframe")
+async def reframe_generation_route(id: str, payload: ReframeRequest):
+    """Reframes a generation from the Luma AI API."""
+    try:
+        ssl_context = ssl._create_unverified_context()
+        connector = aiohttp.TCPConnector(ssl=ssl_context)
+        async with aiohttp.ClientSession(connector=connector) as session:
+            return await reframe_generation(id=id, payload=payload, session=session)
+    except Exception as e:
+        str_io = StringIO()
+        traceback.print_exc(file=str_io)
+        stack_trace_str = str_io.getvalue()
+        return (
+            f"error in reframe_generation: {str(e)}\n\nStack trace:\n{stack_trace_str}"
+        )
